@@ -107,11 +107,10 @@ class UpdateCheckerUtils {
             latestVersion!!.split("\\.".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
         var i = 0
         while (i < installedParts.size || i < latestParts.size) {
-            val installedComponent = if (i < installedParts.size) installedParts[i] else "0"
-            val latestComponent = if (i < latestParts.size) latestParts[i] else "0"
+            val installedComponent = if (i < installedParts.size) installedParts[i].toIntOrNull() ?: 0 else 0
+            val latestComponent = if (i < latestParts.size) latestParts[i].toIntOrNull() ?: 0 else 0
             Log.d(TAG, "Checking version component: $installedComponent vs $latestComponent")
-            val comparisonResult = installedComponent.compareTo(latestComponent)
-            if (comparisonResult < 0) {
+            if (installedComponent < latestComponent) {
                 Log.d(TAG, "Update available: $latestVersion > $installedVersion")
                 return UpdateCheckResult(
                     true, """
@@ -120,7 +119,7 @@ class UpdateCheckerUtils {
      ${mainActivity?.resources?.getString(R.string.new_app_version)}$latestVersion
      """.trimIndent()
                 )
-            } else if (comparisonResult > 0) {
+            } else if (installedComponent > latestComponent) {
                 Log.d(TAG, "giga chad: $latestVersion <= $installedVersion")
                 return UpdateCheckResult(
                     false,
